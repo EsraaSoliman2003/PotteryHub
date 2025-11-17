@@ -88,4 +88,67 @@ public class ProductsController : ControllerBase
 
         return Ok(new { message = "Product deleted" });
     }
+
+    [HttpGet("best-sellers")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetBestSellers([FromQuery] int take = 8)
+    {
+        const int minCount = 3;
+        var desiredCount = Math.Max(take, minCount);
+
+        var bestSellers = await _context.OrderItems
+            .Include(oi => oi.Product)
+            .Include(oi => oi.Order)
+            .Where(oi => oi.Order.Status == "Paid" || oi.Order.Status == "Completed")
+            .GroupBy(oi => new
+            {
+                oi.ProductId,
+                oi.Product.Title,
+                oi.Product.Description,
+                oi.Product.Price,
+                oi.Product.ImageUrl,
+                oi.Product.Category
+            })
+            .Select(g => new
+            {
+                ProductId = g.Key.ProductId,
+                g.Key.Title,
+                g.Key.Description,
+                g.Key.Price,
+                g.Key.ImageUrl,
+                g.Key.Category,
+                TotalSold = g.Sum(x => x.Quantity)
+            })
+            .OrderByDescending(p => p.TotalSold)
+            .Take(desiredCount)
+            .ToListAsync();
+
+        if (bestSellers.Count < minCount)
+        {
+            var needed = minCount - bestSellers.Count;
+
+            var existingIds = bestSellers.Select(p => p.ProductId).ToList();
+
+            var fallbackProducts = await _context.Products
+                .Where(p => !existingIds.Contains(p.Id))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(needed)
+                .Select(p => new
+                {
+                    ProductId = p.Id,
+                    p.Title,
+                    p.Description,
+                    p.Price,
+                    p.ImageUrl,
+                    p.Category,
+                    TotalSold = 0
+                })
+                .ToListAsync();
+
+            bestSellers.AddRange(fallbackProducts);
+        }
+
+        return Ok(bestSellers);
+    }
+
 }
