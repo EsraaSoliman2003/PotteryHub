@@ -1,0 +1,284 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 2,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 3,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "3.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 4,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "4.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 5,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "5.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 6,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 7,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 8,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "3.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 9,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "4.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 10,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "5.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 11,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 12,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    }
+  ],
+  "bestSellers": [
+    {
+      "id": 1,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 2,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 3,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "3.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Furniture"
+    },
+    {
+      "id": 4,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "4.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 5,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "5.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 6,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Electronics"
+    },
+    {
+      "id": 7,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 8,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "3.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 9,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "4.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 10,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "5.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 11,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "1.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    },
+    {
+      "id": 12,
+      "title": "chair",
+      "desc": "bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+      "img": "2.png",
+      "quantity": 20,
+      "rate": 4.7,
+      "price": 120,
+      "orders": 6,
+      "category": "Fashion"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "text": "awesome product"
+    },
+    {
+      "id": 2,
+      "text": "dirty product"
+    },
+    {
+      "id": 3,
+      "text": "nice product"
+    }
+  ]
+}
