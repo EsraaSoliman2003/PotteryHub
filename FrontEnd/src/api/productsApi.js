@@ -1,0 +1,14 @@
+// src/api/productsApi.js
+import axiosClient from "./axiosClient";
+
+const productsApi = {
+  getAll: () => axiosClient.get("/products"),
+  getById: (id) => axiosClient.get(`/products/${id}`),
+
+  // Admin only
+  create: (data) => axiosClient.post("/products", data),
+  update: (id, data) => axiosClient.put(`/products/${id}`, data),
+  delete: (id) => axiosClient.delete(`/products/${id}`),
+};
+
+export default productsApi;

@@ -1,26 +1,36 @@
-
-// LoginForm.js - النسخة المصغرة
+// src/components/auth/LoginForm.jsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function LoginForm() {
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login, loading, error } = useAuthStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const onSubmit = (e) => {
+  const [localError, setLocalError] = useState(null);
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert("Demo login. Connect to real auth later.");
-    }, 800);
+    setLocalError(null);
+
+    const result = await login(email, password);
+
+    if (!result.success) {
+      setLocalError(result.error || "Login failed");
+      return;
+    }
+    router.push("/profile");
   };
 
   return (
     <div className="bg-white rounded-xl border border-amber-200/50 p-6 shadow-lg max-w-md mx-auto">
       
-      {/* Header - أصغر */}
+      {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-light text-slate-800 mb-2 font-serif">
           Welcome Back
@@ -31,7 +41,12 @@ export default function LoginForm() {
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
-        
+        { (localError || error) && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+            {localError || error}
+          </div>
+        )}
+
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -41,6 +56,8 @@ export default function LoginForm() {
             type="email"
             placeholder="you@example.com"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-200/50 outline-none transition-all duration-300 text-sm"
           />
         </div>
@@ -51,7 +68,10 @@ export default function LoginForm() {
             <label className="block text-sm font-medium text-slate-700">
               Password
             </label>
-            <Link href="/auth/forgot-password" className="text-xs text-amber-600 hover:text-amber-700">
+            <Link
+              href="#"
+              className="text-xs text-amber-600 hover:text-amber-700"
+            >
               Forgot password?
             </Link>
           </div>
@@ -59,15 +79,17 @@ export default function LoginForm() {
             type="password"
             placeholder="Enter your password"
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-200/50 outline-none transition-all duration-300 text-sm"
           />
         </div>
 
         {/* Remember Me */}
         <label className="flex items-center gap-2 text-xs text-slate-600">
-          <input 
-            type="checkbox" 
-            className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 scale-90" 
+          <input
+            type="checkbox"
+            className="rounded border-slate-300 text-amber-500 focus:ring-amber-500 scale-90"
           />
           Remember me
         </label>
@@ -119,7 +141,10 @@ export default function LoginForm() {
         {/* Sign Up Link */}
         <p className="text-center text-slate-600 text-sm">
           Don't have an account?{" "}
-          <Link href="/auth/register" className="text-amber-600 hover:text-amber-700 font-semibold">
+          <Link
+            href="/auth/register"
+            className="text-amber-600 hover:text-amber-700 font-semibold"
+          >
             Sign up
           </Link>
         </p>

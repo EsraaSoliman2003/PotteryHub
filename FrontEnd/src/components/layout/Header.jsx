@@ -8,6 +8,11 @@ import {
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+// 🧠 Zustand stores
+import useAuthStore from "@/store/useAuthStore";
+import useCartStore from "@/store/useCartStore";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -19,6 +24,23 @@ const navLinks = [
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const router = useRouter();
+
+  // 🔐 حالة المستخدم من zustand
+  const { user, isAuthenticated, logout } = useAuthStore();
+
+  // 🛒 حالة السلة من zustand
+  const cart = useCartStore((state) => state.cart);
+
+  // لو cart جاي من الـ API بالشكل:
+  // { id, userId, items: [ { id, productId, quantity, product: {...} } ] }
+  const cartCount =
+    cart?.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+
+  const handleLogout = () => {
+    logout();            // يمسح المستخدم + التوكن من الـ store
+    router.push("/auth/login");
+  };
 
   return (
     <>
@@ -75,35 +97,48 @@ export default function Header() {
               {/* Cart Icon */}
               <Link href="/cart" className="relative p-1.5 group">
                 <ShoppingCartIcon className="w-5 h-5 text-slate-300 group-hover:text-amber-400 transition-colors" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-slate-900 text-[10px] rounded-full flex items-center justify-center font-bold shadow-lg">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-slate-900 text-[10px] rounded-full flex items-center justify-center font-bold shadow-lg">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
 
-              {/* User Account */}
-              <Link
-                href="/profile"
-                className="hidden sm:flex items-center gap-1.5 p-1.5 px-3 rounded-xl bg-slate-700/50 text-slate-200 hover:bg-slate-700 hover:text-amber-400 transition-all duration-300 group border border-slate-600"
-              >
-                <UserIcon className="w-4 h-4" />
-                <span className="font-medium text-sm">Account</span>
-              </Link>
-
-              {/* Auth Buttons */}
-              <div className="hidden md:flex items-center gap-2">
-                <Link
-                  href="/auth/login"
-                  className="px-3 py-1.5 text-sm text-slate-300 hover:text-amber-400 transition-colors font-medium"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="px-3 py-1.5 text-sm bg-amber-500 text-slate-900 rounded-lg hover:bg-amber-400 transition-colors font-semibold shadow-lg hover:shadow-amber-500/25"
-                >
-                  Sign Up
-                </Link>
-              </div>
+              {/* User / Auth Area (Desktop) */}
+              {isAuthenticated ? (
+                <div className="hidden md:flex items-center gap-2">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-1.5 p-1.5 px-3 rounded-xl bg-slate-700/50 text-slate-200 hover:bg-slate-700 hover:text-amber-400 transition-all duration-300 group border border-slate-600"
+                  >
+                    <UserIcon className="w-4 h-4" />
+                    <span className="font-medium text-sm">
+                      {user?.name || "Account"}
+                    </span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-1.5 text-sm text-slate-300 hover:text-red-400 hover:bg-slate-800/60 rounded-lg transition-colors font-medium"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="hidden md:flex items-center gap-2">
+                  <Link
+                    href="/auth/login"
+                    className="px-3 py-1.5 text-sm text-slate-300 hover:text-amber-400 transition-colors font-medium"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="px-3 py-1.5 text-sm bg-amber-500 text-slate-900 rounded-lg hover:bg-amber-400 transition-colors font-semibold shadow-lg hover:shadow-amber-500/25"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
 
               {/* Mobile Menu Button */}
               <button
@@ -181,27 +216,50 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons (Mobile) */}
             <div className="p-4 border-t border-slate-700 space-y-3">
-              <Link
-                href="/auth/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center px-4 py-3 rounded-xl border-2 border-slate-600 text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 font-medium"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/auth/register"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 text-slate-900 hover:from-amber-400 hover:to-amber-300 transition-all duration-300 font-semibold shadow-lg"
-              >
-                Create Account
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-center px-4 py-3 rounded-xl border-2 border-slate-600 text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 font-medium"
+                  >
+                    {user?.name || "My Account"}
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="block w-full text-center px-4 py-3 rounded-xl bg-red-500/90 text-white hover:bg-red-400 transition-all duration-300 font-semibold shadow-lg"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-center px-4 py-3 rounded-xl border-2 border-slate-600 text-slate-200 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-300 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block w-full text-center px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 text-slate-900 hover:from-amber-400 hover:to-amber-300 transition-all duration-300 font-semibold shadow-lg"
+                  >
+                    Create Account
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
-      
+
       {/* Spacer for fixed header */}
       <div className="h-14"></div>
     </>

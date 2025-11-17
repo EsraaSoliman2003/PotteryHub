@@ -72,6 +72,18 @@ The app will reload automatically as you edit the code.
 
 ```text
 src/
+  store/
+    useAuthStore.js
+    useCartStore.js
+
+  api/
+    axiosClient.js
+    authApi.js
+    productsApi.js
+    cartApi.js
+    ordersApi.js
+    usersApi.js
+
   app/
     layout.jsx              # Root layout (HTML & <body>)
     page.jsx                # Home page

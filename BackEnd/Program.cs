@@ -17,6 +17,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+// 👈 هنا نضيف CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000") // عنوان الفرونت
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // Auth
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
 var key = Encoding.UTF8.GetBytes(jwtConfig.Key);
@@ -94,6 +107,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// 👈 مهم جداً: CORS قبل Authentication / Authorization
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
