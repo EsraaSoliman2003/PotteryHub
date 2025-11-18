@@ -93,7 +93,7 @@ public class ProductsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetBestSellers([FromQuery] int take = 8)
     {
-        const int minCount = 3;
+        const int minCount = 4;
         var desiredCount = Math.Max(take, minCount);
 
         var bestSellers = await _context.OrderItems

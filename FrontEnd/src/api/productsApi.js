@@ -5,6 +5,12 @@ const productsApi = {
   getAll: () => axiosClient.get("/products"),
   getById: (id) => axiosClient.get(`/products/${id}`),
 
+  // 🆕 Best sellers
+  getBestSellers: (take = 8) =>
+    axiosClient.get("/products/best-sellers", {
+      params: { take },
+    }),
+
   // Admin only
   create: (data) => axiosClient.post("/products", data),
   update: (id, data) => axiosClient.put(`/products/${id}`, data),
