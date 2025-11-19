@@ -1,18 +1,23 @@
-// CartSummary.js - مع إضافة use client
+// src/components/cart/CartSummary.jsx
 "use client";
 
 import Button from "@/components/shared/Button";
 import { TruckIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 
 export default function CartSummary({ items }) {
-  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = items.reduce((sum, item) => {
+    const price = Number(item.product?.price ?? 0);
+    return sum + price * item.quantity;
+  }, 0);
 
   const shipping = subtotal > 100 ? 0 : 9.99;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
+  const freeShippingProgress = Math.min((subtotal / 100) * 100, 100);
+
   return (
-    <div className="bg-white p-6 rounded-2xl border">
+    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-amber-200/30 p-6 lg:p-8 sticky top-8">
       <h2 className="text-2xl font-light text-slate-800 mb-6 font-serif">
         Order Summary
       </h2>
@@ -44,30 +49,29 @@ export default function CartSummary({ items }) {
           <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200/50">
             <div className="flex items-center gap-2 text-amber-700 text-sm mb-2">
               <TruckIcon className="w-4 h-4" />
-              <span>Add ${(100 - subtotal).toFixed(2)} for free shipping!</span>
+              <span>
+                Add ${(100 - subtotal).toFixed(2)} for free shipping!
+              </span>
             </div>
             <div className="w-full bg-amber-200 rounded-full h-2">
               <div
                 className="bg-amber-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${(subtotal / 100) * 100}%` }}
+                style={{ width: `${freeShippingProgress}%` }}
               ></div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Checkout Button */}
       <Button className="w-full py-4 text-lg font-semibold rounded-2xl mb-4">
         Proceed to Checkout
       </Button>
 
-      {/* Security Badge */}
       <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
         <ShieldCheckIcon className="w-4 h-4" />
         <span>Secure checkout</span>
       </div>
 
-      {/* Trust Features */}
       <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-amber-200/30 text-center">
         <div>
           <div className="text-lg mb-1">🚚</div>
