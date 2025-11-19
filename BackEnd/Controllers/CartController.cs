@@ -20,8 +20,26 @@ public class CartController : ControllerBase
         _context = context;
     }
 
-    private int GetUserId() =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+private int GetUserId()
+{
+    var userIdClaim =
+        User.FindFirstValue(ClaimTypes.NameIdentifier) ??
+        User.FindFirstValue("id") ??
+        User.FindFirstValue("UserId");
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+    {
+        throw new Exception("❌ User id claim not found in token");
+    }
+
+    if (!int.TryParse(userIdClaim, out var id))
+    {
+        throw new Exception($"❌ User id claim is not an int: {userIdClaim}");
+    }
+
+    return id;
+}
+
 
     [HttpGet]
     public async Task<IActionResult> GetMyCart()

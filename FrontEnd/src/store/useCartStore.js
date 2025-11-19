@@ -8,11 +8,11 @@ import cartApi from "@/api/cartApi";
 const useCartStore = create(
   persist(
     (set, get) => ({
-      cart: null,         // شكلها جاي من الباك: { id, userId, items: [...] }
+      cart: null,        // { id, userId, items: [...] }
       loading: false,
       error: null,
 
-      // جلب السلة من الباك إند
+      // جلب السلة من الـ API
       fetchCart: async () => {
         try {
           set({ loading: true, error: null });
@@ -27,12 +27,12 @@ const useCartStore = create(
         }
       },
 
-      // إضافة منتج
+      // إضافة منتج للسلة
       addItem: async (productId, quantity = 1) => {
         try {
           set({ loading: true, error: null });
           const res = await cartApi.addItem({ productId, quantity });
-          // الباك بيرجع cart بعد التعديل
+          // الباك إند بيرجع السلة بعد التعديل
           set({ cart: res.data, loading: false });
         } catch (err) {
           console.error("Add item error:", err);
@@ -58,7 +58,7 @@ const useCartStore = create(
         }
       },
 
-      // حذف عنصر
+      // حذف منتج من السلة
       removeItem: async (itemId) => {
         try {
           set({ loading: true, error: null });
@@ -66,7 +66,9 @@ const useCartStore = create(
 
           const current = get().cart;
           if (current) {
-            const updatedItems = current.items?.filter((i) => i.id !== itemId);
+            const updatedItems = current.items?.filter(
+              (i) => i.id !== itemId
+            );
             set({
               cart: { ...current, items: updatedItems },
               loading: false,
@@ -83,7 +85,6 @@ const useCartStore = create(
         }
       },
 
-      // مسح السلة من الـ state (مثلاً بعد ما تعمل order)
       clearCart: () => {
         set({ cart: null });
       },

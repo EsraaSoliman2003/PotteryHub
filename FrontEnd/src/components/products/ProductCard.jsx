@@ -5,6 +5,7 @@ import { useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
+import useCartStore from "@/store/useCartStore";
 import productsApi from "@/api/productsApi";
 import ProductEditModal from "./ProductEditModal";
 
@@ -13,32 +14,51 @@ export default function ProductCard({ product, onDeleted, onUpdated }) {
   const [isHovered, setIsHovered] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   const router = useRouter();
   const { user } = useAuthStore();
+const addItem = useCartStore((state) => state.addItem);
+
   const isAdmin = user?.role === "Admin";
 
-const productId =
-  product?.id ??
-  product?.Id ??
-  product?.productId ??
-  product?.ProductId ??
-  null;
+  const productId =
+    product?.id ??
+    product?.Id ??
+    product?.productId ??
+    product?.ProductId ??
+    null;
 
   if (!productId) {
-  console.warn("⚠️ Product has NO ID:", product);
-}
+    console.warn("⚠️ Product has NO ID:", product);
+  }
+
+  const isOutOfStock =
+    product?.stock !== undefined && product?.stock !== null
+      ? Number(product.stock) <= 0
+      : false;
 
   const handleCardClick = () => {
     if (!productId) return;
     router.push(`/products/${productId}`);
   };
 
-  const handleCartClick = (e) => {
-    e.stopPropagation();
-    setInCart((v) => !v);
-    // TODO: ربطها بـ useCartStore + cartApi
-  };
+const handleAddToCart = async (e) => {
+  e.stopPropagation();
+  if (!productId || isOutOfStock || addingToCart) return;
+
+  try {
+    setAddingToCart(true);
+    await addItem(productId, 1);
+    setInCart(true);
+  } catch (err) {
+    console.error("Add to cart error:", err);
+    alert("Failed to add item.");
+  } finally {
+    setAddingToCart(false);
+  }
+};
+
 
   const handleDelete = async (e) => {
     e.stopPropagation();
@@ -89,20 +109,14 @@ const productId =
 
     if (hasHalfStar) {
       stars.push(
-        <StarIcon
-          key="half"
-          className="w-4 h-4 text-amber-400 fill-current"
-        />
+        <StarIcon key="half" className="w-4 h-4 text-amber-400 fill-current" />
       );
     }
 
     const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <StarIcon
-          key={`empty-${i}`}
-          className="w-4 h-4 text-gray-300"
-        />
+        <StarIcon key={`empty-${i}`} className="w-4 h-4 text-gray-300" />
       );
     }
 
@@ -153,7 +167,11 @@ const productId =
             className={`
               absolute bottom-4 left-1/2 transform -translate-x-1/2
               transition-all duration-300
-              ${isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+              ${
+                isHovered
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }
             `}
           >
             <span className="bg-white/90 backdrop-blur px-4 py-2 rounded-full text-amber-700 text-sm font-medium">
@@ -178,21 +196,32 @@ const productId =
               <span className="text-2xl font-bold text-amber-600">
                 ${Number(product.price).toFixed(2)}
               </span>
+              {/* ممكن تضيفي ريتنج هنا لو موجود */}
             </div>
 
             {!isAdmin && (
               <button
-                onClick={handleCartClick}
+                onClick={handleAddToCart}
+                disabled={addingToCart || !productId || isOutOfStock}
                 className={`
                   px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
                   ${
-                    inCart
+                    isOutOfStock
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : inCart
                       ? "bg-amber-100 text-amber-700 border border-amber-200"
                       : "bg-amber-500 text-white hover:bg-amber-600"
                   }
+                  ${addingToCart ? "opacity-70 cursor-wait" : ""}
                 `}
               >
-                {inCart ? "Added ✓" : "Add to Cart"}
+                {isOutOfStock
+                  ? "Out of Stock"
+                  : addingToCart
+                  ? "Adding..."
+                  : inCart
+                  ? "Added ✓"
+                  : "Add to Cart"}
               </button>
             )}
 
