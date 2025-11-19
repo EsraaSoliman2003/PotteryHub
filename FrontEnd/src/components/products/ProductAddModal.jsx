@@ -8,8 +8,15 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl2, setImageUrl2] = useState("");
+  const [imageUrl3, setImageUrl3] = useState("");
+  const [imageUrl4, setImageUrl4] = useState("");
+  const [imageUrl5, setImageUrl5] = useState("");
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("");
+
+  const [dimensions, setDimensions] = useState("");
+  const [quantity, setQuantity] = useState(""); // string زي ما في الموديل
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -28,8 +35,14 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
         description,
         price: parseFloat(price),
         imageUrl,
-        stock: parseInt(stock),
+        imageUrl2: imageUrl2 || null,
+        imageUrl3: imageUrl3 || null,
+        imageUrl4: imageUrl4 || null,
+        imageUrl5: imageUrl5 || null,
+        stock: parseInt(stock, 10),
         category,
+        dimensions: dimensions || null,
+        quantity: quantity || null,
       };
 
       const res = await productsApi.create(payload);
@@ -37,7 +50,9 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
       onClose();
     } catch (err) {
       console.error(err);
-      setErrorMsg(err);
+      setErrorMsg(
+        typeof err === "string" ? err : "Failed to add product, please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -48,7 +63,9 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4">
         <div className="flex justify-between px-5 py-4 border-b">
           <h2 className="font-semibold text-lg">Add New Product</h2>
-          <button onClick={onClose} className="text-xl">×</button>
+          <button onClick={onClose} className="text-xl">
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
@@ -58,6 +75,7 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             </div>
           )}
 
+          {/* Title */}
           <input
             type="text"
             placeholder="Product Title"
@@ -67,6 +85,7 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             required
           />
 
+          {/* Description */}
           <textarea
             placeholder="Description"
             className="w-full border rounded-lg px-3 py-2"
@@ -76,6 +95,7 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             required
           />
 
+          {/* Price */}
           <input
             type="number"
             placeholder="Price"
@@ -83,17 +103,51 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
+            min="0"
+            step="0.01"
           />
 
+          {/* Main Image */}
           <input
             type="text"
-            placeholder="Image URL"
+            placeholder="Main Image URL"
             className="w-full border rounded-lg px-3 py-2"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             required
           />
 
+          {/* Extra Images (اختيارية) */}
+          <input
+            type="text"
+            placeholder="Second Image URL (optional)"
+            className="w-full border rounded-lg px-3 py-2"
+            value={imageUrl2}
+            onChange={(e) => setImageUrl2(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Third Image URL (optional)"
+            className="w-full border rounded-lg px-3 py-2"
+            value={imageUrl3}
+            onChange={(e) => setImageUrl3(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Fourth Image URL (optional)"
+            className="w-full border rounded-lg px-3 py-2"
+            value={imageUrl4}
+            onChange={(e) => setImageUrl4(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Fifth Image URL (optional)"
+            className="w-full border rounded-lg px-3 py-2"
+            value={imageUrl5}
+            onChange={(e) => setImageUrl5(e.target.value)}
+          />
+
+          {/* Stock & Category */}
           <input
             type="number"
             placeholder="Stock"
@@ -101,6 +155,7 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             value={stock}
             onChange={(e) => setStock(e.target.value)}
             required
+            min="0"
           />
 
           <input
@@ -110,6 +165,23 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
+          />
+
+          {/* Dimensions & Quantity (string) */}
+          <input
+            type="text"
+            placeholder='Dimensions (e.g. 12" H × 8" W)'
+            className="w-full border rounded-lg px-3 py-2"
+            value={dimensions}
+            onChange={(e) => setDimensions(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder='Quantity (e.g. "10 pcs" or "Set of 4")'
+            className="w-full border rounded-lg px-3 py-2"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
           />
 
           <div className="flex justify-end gap-3">
@@ -123,7 +195,7 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 bg-amber-500 text-white rounded-lg shadow"
+              className="px-5 py-2 bg-amber-500 text-white rounded-lg shadow disabled:opacity-60"
             >
               {loading ? "Saving..." : "Add Product"}
             </button>

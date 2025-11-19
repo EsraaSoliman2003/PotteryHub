@@ -4,13 +4,25 @@
 import { useEffect, useState } from "react";
 import productsApi from "@/api/productsApi";
 
-export default function ProductEditModal({ isOpen, onClose, product, onUpdated }) {
+export default function ProductEditModal({
+  isOpen,
+  onClose,
+  product,
+  onUpdated,
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl2, setImageUrl2] = useState("");
+  const [imageUrl3, setImageUrl3] = useState("");
+  const [imageUrl4, setImageUrl4] = useState("");
+  const [imageUrl5, setImageUrl5] = useState("");
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("");
+
+  const [dimensions, setDimensions] = useState("");
+  const [quantity, setQuantity] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -21,8 +33,14 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
       setDescription(product.description ?? "");
       setPrice(product.price?.toString() ?? "");
       setImageUrl(product.imageUrl ?? "");
+      setImageUrl2(product.imageUrl2 ?? "");
+      setImageUrl3(product.imageUrl3 ?? "");
+      setImageUrl4(product.imageUrl4 ?? "");
+      setImageUrl5(product.imageUrl5 ?? "");
       setStock((product.stock ?? 0).toString());
       setCategory(product.category ?? "");
+      setDimensions(product.dimensions ?? "");
+      setQuantity(product.quantity ?? "");
       setErrorMsg("");
     }
   }, [product, isOpen]);
@@ -56,21 +74,28 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
         description,
         price: parsedPrice,
         imageUrl,
+        imageUrl2: imageUrl2 || null,
+        imageUrl3: imageUrl3 || null,
+        imageUrl4: imageUrl4 || null,
+        imageUrl5: imageUrl5 || null,
         stock: parsedStock,
         category,
+        dimensions: dimensions || null,
+        quantity: quantity || null,
       };
 
       const res = await productsApi.update(productId, payload);
       const updated = res.data;
 
-      // بلّغ الأب إن المنتج اتحدث
       if (onUpdated) onUpdated(updated);
 
       onClose();
     } catch (err) {
       console.error("Update product error:", err);
       setErrorMsg(
-        typeof err === "string" ? err : "Failed to update product, please try again."
+        typeof err === "string"
+          ? err
+          : "Failed to update product, please try again."
       );
     } finally {
       setLoading(false);
@@ -83,9 +108,7 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 relative">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-800">
-            Edit Product
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-800">Edit Product</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 text-xl leading-none"
@@ -94,7 +117,7 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
           </button>
         </div>
 
-        {/* Body / Form */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           {errorMsg && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-lg">
@@ -176,10 +199,10 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
             />
           </div>
 
-          {/* Image URL */}
-          <div>
+          {/* Images */}
+          <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Image URL
+              Main Image URL
             </label>
             <input
               type="text"
@@ -188,9 +211,66 @@ export default function ProductEditModal({ isOpen, onClose, product, onUpdated }
               required
               className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 outline-none text-sm"
             />
-            <p className="text-xs text-slate-500 mt-1">
-              Use a public image URL or something from your CDN.
-            </p>
+
+            <label className="block text-xs text-slate-500 mt-1 mb-1">
+              Extra Images (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Second Image URL"
+              value={imageUrl2}
+              onChange={(e) => setImageUrl2(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm mb-1"
+            />
+            <input
+              type="text"
+              placeholder="Third Image URL"
+              value={imageUrl3}
+              onChange={(e) => setImageUrl3(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm mb-1"
+            />
+            <input
+              type="text"
+              placeholder="Fourth Image URL"
+              value={imageUrl4}
+              onChange={(e) => setImageUrl4(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm mb-1"
+            />
+            <input
+              type="text"
+              placeholder="Fifth Image URL"
+              value={imageUrl5}
+              onChange={(e) => setImageUrl5(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+            />
+          </div>
+
+          {/* Dimensions & Quantity */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Dimensions
+              </label>
+              <input
+                type="text"
+                value={dimensions}
+                onChange={(e) => setDimensions(e.target.value)}
+                placeholder='e.g. 12" H × 8" W'
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 outline-none text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Quantity (string)
+              </label>
+              <input
+                type="text"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder='e.g. "10 pcs" or "Set of 4"'
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 outline-none text-sm"
+              />
+            </div>
           </div>
 
           {/* Footer buttons */}

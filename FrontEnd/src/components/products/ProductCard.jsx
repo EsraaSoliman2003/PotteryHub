@@ -18,7 +18,16 @@ export default function ProductCard({ product, onDeleted, onUpdated }) {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "Admin";
 
-  const productId = product.id ?? product.productId;
+const productId =
+  product?.id ??
+  product?.Id ??
+  product?.productId ??
+  product?.ProductId ??
+  null;
+
+  if (!productId) {
+  console.warn("⚠️ Product has NO ID:", product);
+}
 
   const handleCardClick = () => {
     if (!productId) return;

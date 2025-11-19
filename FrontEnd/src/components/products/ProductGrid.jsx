@@ -6,7 +6,7 @@ export default function ProductGrid({ products, onProductDeleted, onProductUpdat
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((p) => (
         <ProductCard
-          key={p.id}
+          key={p.productId}
           product={p}
           onDeleted={onProductDeleted}
           onUpdated={onProductUpdated}
