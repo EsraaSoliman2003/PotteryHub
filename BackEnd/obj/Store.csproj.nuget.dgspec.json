@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PotteryHub\\backend\\Store.csproj": {}
+    "D:\\PotteryHub\\BackEnd\\Store.csproj": {}
   },
   "projects": {
-    "D:\\PotteryHub\\backend\\Store.csproj": {
+    "D:\\PotteryHub\\BackEnd\\Store.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PotteryHub\\backend\\Store.csproj",
+        "projectUniqueName": "D:\\PotteryHub\\BackEnd\\Store.csproj",
         "projectName": "Store",
-        "projectPath": "D:\\PotteryHub\\backend\\Store.csproj",
+        "projectPath": "D:\\PotteryHub\\BackEnd\\Store.csproj",
         "packagesPath": "C:\\Users\\Esraa Soliman\\.nuget\\packages\\",
-        "outputPath": "D:\\PotteryHub\\backend\\obj\\",
+        "outputPath": "D:\\PotteryHub\\BackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

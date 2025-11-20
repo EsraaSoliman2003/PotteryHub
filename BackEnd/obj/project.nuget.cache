@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "5M38LTQVOQo=",
+  "dgSpecHash": "ZBlq1KC7HLE=",
   "success": true,
-  "projectFilePath": "D:\\PotteryHub\\backend\\Store.csproj",
+  "projectFilePath": "D:\\PotteryHub\\BackEnd\\Store.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Esraa Soliman\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Esraa Soliman\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
