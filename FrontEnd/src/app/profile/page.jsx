@@ -5,26 +5,24 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import ProfileInfo from "@/components/profile/ProfileInfo";
 import OrdersList from "@/components/profile/OrdersList";
-import AddressBook from "@/components/profile/AddressBook";
+import AccountSettings from "@/components/profile/AccountSettings";
 
 import useAuthStore from "@/store/useAuthStore";
 import usersApi from "@/api/usersApi";
 import ordersApi from "@/api/ordersApi";
 import Loader from "@/components/shared/Loader";
 import EmptyState from "@/components/shared/EmptyState";
-import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
-import EditProfileForm from "@/components/profile/EditProfileForm";
 
 export default function ProfilePage() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, setUser } = useAuthStore();
 
   const [profile, setProfile] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   useEffect(() => {
-    // لو مش عامل لوجين
     if (!isAuthenticated || !user) {
       setLoading(false);
       return;
@@ -52,6 +50,11 @@ export default function ProfilePage() {
 
     fetchData();
   }, [isAuthenticated, user]);
+
+  const handleProfileUpdated = (updatedProfile) => {
+    setProfile(updatedProfile);
+    setUser(updatedProfile);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -82,10 +85,7 @@ export default function ProfilePage() {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center">
-          <EmptyState
-            title="Error loading profile"
-            description={error}
-          />
+          <EmptyState title="Error loading profile" description={error} />
         </div>
       </MainLayout>
     );
@@ -96,33 +96,39 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-amber-50/30 to-white py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <h1 className="text-4xl lg:text-5xl font-light text-slate-800 mb-4 font-serif">
               My <span className="text-amber-600">Profile</span>
             </h1>
             <p className="text-lg text-slate-600">
-              Manage your account, orders, and addresses
+              Manage your account and view your orders
             </p>
           </div>
 
           {/* Main Content Grid */}
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Sidebar - Profile Info + Addresses + Change Password */}
+            {/* Left Sidebar - Profile Info */}
             <div className="lg:col-span-1 space-y-6">
-              <ProfileInfo user={profile} />
-              {/* <AddressBook /> */}
-                <ChangePasswordForm />
-                  <EditProfileForm />
-
+              <ProfileInfo
+                user={profile}
+                onEditClick={() => setShowSettingsModal(true)}
+              />
             </div>
 
             {/* Right Content - Orders */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
               <OrdersList orders={orders} />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Settings Modal (Edit profile + password) */}
+      <AccountSettings
+        open={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        onProfileUpdated={handleProfileUpdated}
+      />
     </MainLayout>
   );
 }

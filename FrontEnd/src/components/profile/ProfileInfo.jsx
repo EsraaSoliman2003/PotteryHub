@@ -1,16 +1,14 @@
+// src/components/profile/ProfileInfo.jsx
 "use client";
 
 import {
   UserIcon,
   EnvelopeIcon,
   CalendarIcon,
-  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
-export default function ProfileInfo({ user }) {
-  if (!user) {
-    return null; // أو Loader صغير لو حابة
-  }
+export default function ProfileInfo({ user, onEditClick }) {
+  if (!user) return null;
 
   const joinedAt = user.createdAt
     ? new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -54,13 +52,13 @@ export default function ProfileInfo({ user }) {
         </div>
       </div>
 
-      {/* Actions (ممكن نستخدمها مثلاً لفتح مودال تعديل بيانات أو تغيير باسورد) */}
-      <div className="space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-sm font-medium">
-          <Cog6ToothIcon className="w-5 h-5" />
-          Account Settings
-        </button>
-      </div>
+      {/* Edit button */}
+      <button
+        onClick={onEditClick}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+      >
+        Edit profile
+      </button>
     </div>
   );
 }
