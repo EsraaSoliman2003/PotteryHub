@@ -4,7 +4,7 @@
 import Button from "@/components/shared/Button";
 import { TruckIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 
-export default function CartSummary({ items }) {
+export default function CartSummary({ items, onCheckout, placingOrder }) {
   const subtotal = items.reduce((sum, item) => {
     const price = Number(item.product?.price ?? 0);
     return sum + price * item.quantity;
@@ -15,6 +15,11 @@ export default function CartSummary({ items }) {
   const total = subtotal + shipping + tax;
 
   const freeShippingProgress = Math.min((subtotal / 100) * 100, 100);
+
+  const handleCheckoutClick = () => {
+    if (!onCheckout) return;
+    onCheckout();
+  };
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-amber-200/30 p-6 lg:p-8 sticky top-8">
@@ -49,9 +54,7 @@ export default function CartSummary({ items }) {
           <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200/50">
             <div className="flex items-center gap-2 text-amber-700 text-sm mb-2">
               <TruckIcon className="w-4 h-4" />
-              <span>
-                Add ${(100 - subtotal).toFixed(2)} for free shipping!
-              </span>
+              <span>Add ${(100 - subtotal).toFixed(2)} for free shipping!</span>
             </div>
             <div className="w-full bg-amber-200 rounded-full h-2">
               <div
@@ -63,8 +66,12 @@ export default function CartSummary({ items }) {
         )}
       </div>
 
-      <Button className="w-full py-4 text-lg font-semibold rounded-2xl mb-4">
-        Proceed to Checkout
+      <Button
+        className="w-full py-4 text-lg font-semibold rounded-2xl mb-4"
+        onClick={handleCheckoutClick}
+        disabled={placingOrder || items.length === 0}
+      >
+        {placingOrder ? "Placing order..." : "Proceed to Checkout"}
       </Button>
 
       <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">

@@ -1,37 +1,73 @@
-// src/components/product-details/ProductActions.jsx
 "use client";
 
 import { useState } from "react";
 import { HeartIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
+import useCartStore from "@/store/useCartStore";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function ProductActions({ product }) {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
-  // 👇 هنا بنحوّل القيمة الجاية من ال API (string) لرقم
-  // مثال: "10" أو "10 pcs" → 10
-  const rawQty = product.quantity
-    ? parseInt(product.quantity, 10)
-    : 0;
+  const router = useRouter();
+  const addItem = useCartStore((state) => state.addItem);
+  const { isAuthenticated } = useAuthStore();
 
-  const maxQty = rawQty > 0 ? rawQty : 1;      // أقصى كمية نسمح بيها في الـ UI
-  const isOutOfStock = rawQty <= 0;            // لو 0 أو أقل نعتبره out of stock
-
-  const handleAddToCart = () => {
-    if (isOutOfStock) return;
-
-    console.log("Added to cart:", { product, quantity });
-
-    // هنا بعدين تربطيه بـ useCartStore أو cartApi
-  };
+  const rawQty = product.quantity ? parseInt(product.quantity, 10) : 0;
+  const maxQty = rawQty > 0 ? rawQty : 1;
+  const isOutOfStock = rawQty <= 0 || product.stock <= 0;
 
   const handleDecrease = () => {
     setQuantity((q) => Math.max(1, q - 1));
   };
 
   const handleIncrease = () => {
-    setQuantity((q) => Math.min(maxQty, q + 1)); // 👈 هنا اللي بيوقف عند أقصى قيمة
+    setQuantity((q) => Math.min(maxQty, q + 1));
+  };
+
+  const requireAuth = () => {
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+      return false;
+    }
+    return true;
+  };
+
+  const handleAddToCart = async () => {
+    if (isOutOfStock) return;
+    if (!requireAuth()) return;
+
+    try {
+      setAddingToCart(true);
+      await addItem(product.id, quantity);
+
+      alert("Item added to cart");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert(typeof err === "string" ? err : "Failed to add to cart");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (isOutOfStock) return;
+    if (!requireAuth()) return;
+
+    try {
+      setBuyingNow(true);
+      await addItem(product.id, quantity);
+      router.push("/cart");
+    } catch (err) {
+      console.error("Buy now error:", err);
+      alert(typeof err === "string" ? err : "Failed to start order");
+    } finally {
+      setBuyingNow(false);
+    }
   };
 
   return (
@@ -72,17 +108,26 @@ export default function ProductActions({ product }) {
       <div className="space-y-3">
         <button
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || addingToCart}
           className="w-full py-4 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+          {isOutOfStock
+            ? "Out of Stock"
+            : addingToCart
+            ? "Adding..."
+            : "Add to Cart"}
         </button>
 
         <button
-          disabled={isOutOfStock}
+          onClick={handleBuyNow}
+          disabled={isOutOfStock || buyingNow}
           className="w-full py-4 border-2 border-gray-900 text-gray-900 rounded-xl font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Buy Now
+          {isOutOfStock
+            ? "Unavailable"
+            : buyingNow
+            ? "Processing..."
+            : "Buy Now"}
         </button>
       </div>
 

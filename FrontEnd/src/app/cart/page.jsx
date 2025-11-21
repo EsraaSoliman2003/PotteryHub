@@ -1,21 +1,53 @@
-// src/app/cart/page.jsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import CartList from "@/components/cart/CartList";
 import CartSummary from "@/components/cart/CartSummary";
 import useCartStore from "@/store/useCartStore";
 import Loader from "@/components/shared/Loader";
+import ordersApi from "@/api/ordersApi";
 
 export default function CartPage() {
-  const { cart, loading, error, fetchCart } = useCartStore();
+  const router = useRouter();
+
+  const { cart, loading, error, fetchCart, clearCart } = useCartStore();
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
   const items = cart?.items ?? [];
+
+  const handlePlaceOrder = async () => {
+    if (!items.length) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    try {
+      setPlacingOrder(true);
+
+      const res = await ordersApi.createOrder();
+      const order = res.data;
+
+      clearCart();
+
+      alert(`Order #${order.id} created successfully`);
+      router.push("/profile");
+    } catch (err) {
+      console.error("Place order error:", err);
+      alert(typeof err === "string" ? err : "Failed to place order");
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
+
+  const handleContinueShopping = () => {
+    router.push("/products");
+  };
 
   return (
     <MainLayout>
@@ -38,9 +70,7 @@ export default function CartPage() {
           )}
 
           {error && !loading && (
-            <div className="text-center text-red-600 py-6">
-              {error}
-            </div>
+            <div className="text-center text-red-600 py-6">{error}</div>
           )}
 
           {!loading && !error && (
@@ -54,7 +84,11 @@ export default function CartPage() {
 
                   {/* Order Summary */}
                   <div className="lg:col-span-1">
-                    <CartSummary items={items} />
+                    <CartSummary
+                      items={items}
+                      onCheckout={handlePlaceOrder}
+                      placingOrder={placingOrder}
+                    />
                   </div>
                 </div>
               ) : (
@@ -66,7 +100,10 @@ export default function CartPage() {
                   <p className="text-slate-600 mb-8">
                     Add some beautiful pottery to your cart
                   </p>
-                  <button className="bg-amber-500 text-white px-8 py-3 rounded-xl hover:bg-amber-600 transition-colors font-semibold">
+                  <button
+                    onClick={handleContinueShopping}
+                    className="bg-amber-500 text-white px-8 py-3 rounded-xl hover:bg-amber-600 transition-colors font-semibold"
+                  >
                     Continue Shopping
                   </button>
                 </div>
@@ -76,7 +113,10 @@ export default function CartPage() {
 
           {/* Continue Shopping */}
           <div className="text-center mt-12">
-            <button className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-2 mx-auto">
+            <button
+              onClick={handleContinueShopping}
+              className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-2 mx-auto"
+            >
               ← Continue Shopping
             </button>
           </div>
