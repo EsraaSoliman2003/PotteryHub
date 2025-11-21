@@ -1,16 +1,24 @@
-// ProfileInfo.js - التصميم الجديد
 "use client";
 
-import { UserIcon, EnvelopeIcon, CalendarIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import {
+  UserIcon,
+  EnvelopeIcon,
+  CalendarIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
 
-export default function ProfileInfo() {
-  const user = {
-    name: "Demo User",
-    email: "demo@example.com",
-    joinedAt: "January 2025",
-    orders: 12,
-    loyaltyPoints: 450
-  };
+export default function ProfileInfo({ user }) {
+  if (!user) {
+    return null; // أو Loader صغير لو حابة
+  }
+
+  const joinedAt = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "—";
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-amber-200/30 p-6 lg:p-8">
@@ -22,7 +30,9 @@ export default function ProfileInfo() {
         <h2 className="text-2xl font-light text-slate-800 mb-2 font-serif">
           {user.name}
         </h2>
-        <p className="text-slate-600">Premium Member</p>
+        <p className="text-slate-600">
+          {user.role === "Admin" ? "Administrator" : "Member"}
+        </p>
       </div>
 
       {/* User Details */}
@@ -39,32 +49,16 @@ export default function ProfileInfo() {
           <CalendarIcon className="w-5 h-5 text-amber-600" />
           <div>
             <p className="text-sm font-medium text-slate-700">Member Since</p>
-            <p className="text-slate-600 text-sm">{user.joinedAt}</p>
+            <p className="text-slate-600 text-sm">{joinedAt}</p>
           </div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="text-center p-3 bg-white rounded-xl border border-amber-200/30">
-          <div className="text-lg font-bold text-amber-600">{user.orders}</div>
-          <div className="text-xs text-slate-600">Orders</div>
-        </div>
-        <div className="text-center p-3 bg-white rounded-xl border border-amber-200/30">
-          <div className="text-lg font-bold text-amber-600">{user.loyaltyPoints}</div>
-          <div className="text-xs text-slate-600">Points</div>
-        </div>
-      </div>
-
-      {/* Actions */}
+      {/* Actions (ممكن نستخدمها مثلاً لفتح مودال تعديل بيانات أو تغيير باسورد) */}
       <div className="space-y-2">
         <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-sm font-medium">
           <Cog6ToothIcon className="w-5 h-5" />
           Account Settings
-        </button>
-        <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-sm font-medium">
-          <UserIcon className="w-5 h-5" />
-          Edit Profile
         </button>
       </div>
     </div>

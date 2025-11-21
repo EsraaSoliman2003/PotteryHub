@@ -63,7 +63,7 @@ public class UsersController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateUser(int id, RegisterDto dto)
+    public async Task<IActionResult> UpdateUser(int id, UpdateUserDto dto)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
@@ -74,7 +74,14 @@ public class UsersController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(user);
+        return Ok(new
+        {
+            user.Id,
+            user.Name,
+            user.Email,
+            user.Role,
+            user.CreatedAt
+        });
     }
 
     [HttpPut("change-password")]
@@ -109,4 +116,30 @@ public class UsersController : ControllerBase
 
         return Ok(new { message = "User deleted" });
     }
+
+    [HttpPut("me")]
+    [Authorize]
+    public async Task<IActionResult> UpdateCurrentUser(UpdateUserDto dto)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+            return NotFound(new ApiErrorResponse { Message = "User not found" });
+
+        user.Name = dto.Name;
+        user.Email = dto.Email;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            user.Id,
+            user.Name,
+            user.Email,
+            user.Role,
+            user.CreatedAt
+        });
+    }
+
 }

@@ -13,6 +13,7 @@ const useAuthStore = create(
       isAuthenticated: false,
       loading: false,
       error: null,
+      setUser: (updatedUser) => set({ user: updatedUser }),
 
       // تسجيل الدخول
       login: async (email, password) => {
