@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   TruckIcon,
   CheckCircleIcon,
@@ -29,6 +30,12 @@ const getStatusColor = (status) => {
 };
 
 export default function OrdersList({ orders }) {
+  const [expandedOrderId, setExpandedOrderId] = useState(null); // ⬅️ مين اللي متفتح دلوقتي
+
+  const toggleDetails = (orderId) => {
+    setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
+  };
+
   if (!orders || orders.length === 0) {
     return (
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-amber-200/30 p-8 text-center">
@@ -66,7 +73,7 @@ export default function OrdersList({ orders }) {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-slate-800 text-lg">
-                  {order.id}
+                  #{order.id}
                 </h3>
                 <p className="text-slate-500 text-sm">
                   {order.createdAt
@@ -81,7 +88,6 @@ export default function OrdersList({ orders }) {
 
               <div className="text-right">
                 <div className="text-xl font-bold text-slate-800">
-                  {/* عدّلي اسم الفيلد حسب الـ DTO بتاعك (total / totalPrice / totalAmount) */}
                   ${Number(order.total || order.totalPrice || 0).toFixed(2)}
                 </div>
                 <div className="flex items-center gap-1 justify-end">
@@ -105,11 +111,60 @@ export default function OrdersList({ orders }) {
               </div>
 
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium">
-                  View Details
+                <button
+                  onClick={() => toggleDetails(order.id)} // ⬅️ هنا السحر
+                  className="px-3 py-1.5 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
+                >
+                  {expandedOrderId === order.id ? "Hide Details" : "View Details"}
                 </button>
               </div>
             </div>
+
+            {/* ✅ تفاصيل الأوردر تحت الكارت */}
+            {expandedOrderId === order.id && (
+              <div className="mt-4 pt-3 border-t border-dashed border-amber-200/60">
+                {order.items && order.items.length > 0 ? (
+                  <div className="space-y-2">
+                    {order.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between text-sm text-slate-700"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {item.productTitle ||
+                              item.product?.title ||
+                              "Item"}
+                          </span>
+                          <span className="text-slate-500 text-xs">
+                            Qty: {item.quantity} × $
+                            {Number(
+                              item.unitPrice ||
+                                item.price ||
+                                item.totalPrice / item.quantity ||
+                                0
+                            ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="font-semibold text-slate-900">
+                          $
+                          {Number(
+                            item.total ||
+                              item.totalPrice ||
+                              (item.unitPrice || item.price || 0) *
+                                item.quantity
+                          ).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    No items available for this order.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

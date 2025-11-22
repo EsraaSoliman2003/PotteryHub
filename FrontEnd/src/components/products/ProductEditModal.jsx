@@ -22,7 +22,6 @@ export default function ProductEditModal({
   const [category, setCategory] = useState("");
 
   const [dimensions, setDimensions] = useState("");
-  const [quantity, setQuantity] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -40,7 +39,6 @@ export default function ProductEditModal({
       setStock((product.stock ?? 0).toString());
       setCategory(product.category ?? "");
       setDimensions(product.dimensions ?? "");
-      setQuantity(product.quantity ?? "");
       setErrorMsg("");
     }
   }, [product, isOpen]);
@@ -81,7 +79,6 @@ export default function ProductEditModal({
         stock: parsedStock,
         category,
         dimensions: dimensions || null,
-        quantity: quantity || null,
       };
 
       const res = await productsApi.update(productId, payload);
@@ -245,7 +242,7 @@ export default function ProductEditModal({
             />
           </div>
 
-          {/* Dimensions & Quantity */}
+          {/* Dimensions فقط */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -256,18 +253,6 @@ export default function ProductEditModal({
                 value={dimensions}
                 onChange={(e) => setDimensions(e.target.value)}
                 placeholder='e.g. 12" H × 8" W'
-                className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 outline-none text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Quantity (string)
-              </label>
-              <input
-                type="text"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder='e.g. "10 pcs" or "Set of 4"'
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 outline-none text-sm"
               />
             </div>

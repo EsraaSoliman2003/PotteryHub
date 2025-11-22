@@ -16,7 +16,6 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
   const [category, setCategory] = useState("");
 
   const [dimensions, setDimensions] = useState("");
-  const [quantity, setQuantity] = useState(""); // string زي ما في الموديل
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -42,7 +41,6 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
         stock: parseInt(stock, 10),
         category,
         dimensions: dimensions || null,
-        quantity: quantity || null,
       };
 
       const res = await productsApi.create(payload);
@@ -51,7 +49,9 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
     } catch (err) {
       console.error(err);
       setErrorMsg(
-        typeof err === "string" ? err : "Failed to add product, please try again."
+        typeof err === "string"
+          ? err
+          : "Failed to add product, please try again."
       );
     } finally {
       setLoading(false);
@@ -167,21 +167,13 @@ export default function ProductAddModal({ isOpen, onClose, onAdded }) {
             required
           />
 
-          {/* Dimensions & Quantity (string) */}
+          {/* Dimensions */}
           <input
             type="text"
             placeholder='Dimensions (e.g. 12" H × 8" W)'
             className="w-full border rounded-lg px-3 py-2"
             value={dimensions}
             onChange={(e) => setDimensions(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder='Quantity (e.g. "10 pcs" or "Set of 4")'
-            className="w-full border rounded-lg px-3 py-2"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
           />
 
           <div className="flex justify-end gap-3">

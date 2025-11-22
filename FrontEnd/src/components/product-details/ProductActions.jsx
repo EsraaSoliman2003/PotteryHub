@@ -17,9 +17,13 @@ export default function ProductActions({ product }) {
   const addItem = useCartStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
 
-  const rawQty = product.quantity ? parseInt(product.quantity, 10) : 0;
-  const maxQty = rawQty > 0 ? rawQty : 1;
-  const isOutOfStock = rawQty <= 0 || product.stock <= 0;
+  const stock =
+    typeof product.stock === "number"
+      ? product.stock
+      : parseInt(product.stock ?? "0", 10) || 0;
+
+  const maxQty = stock > 0 ? stock : 1;
+  const isOutOfStock = stock <= 0;
 
   const handleDecrease = () => {
     setQuantity((q) => Math.max(1, q - 1));
@@ -97,7 +101,7 @@ export default function ProductActions({ product }) {
           <button
             onClick={handleIncrease}
             disabled={quantity >= maxQty || isOutOfStock}
-            className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg text-gray-600 hover:bg-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg text-gray-600 hover:bg:white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             +
           </button>
