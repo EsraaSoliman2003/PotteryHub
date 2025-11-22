@@ -59,7 +59,6 @@ public class ProductsController : ControllerBase
             Category = dto.Category,
 
             Dimensions = dto.Dimensions,
-            Quantity = dto.Quantity
         };
 
         _context.Products.Add(p);
@@ -91,7 +90,6 @@ public class ProductsController : ControllerBase
         p.Category = dto.Category;
 
         p.Dimensions = dto.Dimensions;
-        p.Quantity = dto.Quantity;
 
         await _context.SaveChangesAsync();
         return Ok(p);
@@ -139,7 +137,6 @@ public class ProductsController : ControllerBase
                 g.Key.Stock,
                 g.Key.Category,
                 g.Key.Dimensions,
-                g.Key.Quantity,
                 g.Key.CreatedAt,
                 TotalSold = g.Sum(x => x.Quantity)
             })
@@ -171,7 +168,6 @@ public class ProductsController : ControllerBase
                     p.Stock,
                     p.Category,
                     p.Dimensions,
-                    p.Quantity,
                     p.CreatedAt,
                     TotalSold = 0
                 })

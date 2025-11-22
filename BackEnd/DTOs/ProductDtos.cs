@@ -12,7 +12,5 @@ public class ProductCreateUpdateDto
     public string? ImageUrl5 { get; set; }
     public int Stock { get; set; }
     public string Category { get; set; } = null!;
-    
     public string? Dimensions { get; set; }
-    public string? Quantity { get; set; }
 }

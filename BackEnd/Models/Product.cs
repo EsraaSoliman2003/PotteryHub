@@ -16,7 +16,7 @@ public class Product
     public int Stock { get; set; }
     public string Category { get; set; } = null!;
     public string? Dimensions { get; set; }
-    public string? Quantity { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
