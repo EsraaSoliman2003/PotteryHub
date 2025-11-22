@@ -1,0 +1,31 @@
+# ===== BACKEND (.NET) =====
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.user
+*.vs
+appsettings.Development.json
+
+# Entity Framework Migrations temp files
+*Migrations/*.Designer.cs
+
+# ===== FRONTEND (Next.js) =====
+node_modules/
+.next/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# ===== GENERAL =====
+.DS_Store
+Thumbs.db
