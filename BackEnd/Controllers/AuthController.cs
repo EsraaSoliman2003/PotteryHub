@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Store.Data;
 using Store.DTOs;
 using Store.Models;
@@ -13,11 +14,13 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IJwtService _jwt;
+    private readonly JwtSettings _jwtSettings;
 
-    public AuthController(AppDbContext context, IJwtService jwt)
+    public AuthController(AppDbContext context, IJwtService jwt, IOptions<JwtSettings> jwtOptions)
     {
         _context = context;
         _jwt = jwt;
+        _jwtSettings = jwtOptions.Value;
     }
 
     // POST: api/auth/register
@@ -55,17 +58,11 @@ public class AuthController : ControllerBase
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
         if (user == null)
-            return Unauthorized(new ApiErrorResponse
-            {
-                Message = "Invalid credentials"
-            });
-
+            return Unauthorized(new ApiErrorResponse { Message = "Invalid credentials" });
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            return Unauthorized(new ApiErrorResponse
-            {
-                Message = "Invalid credentials"
-            });
+            return Unauthorized(new ApiErrorResponse { Message = "Invalid credentials" });
+
         var token = _jwt.GenerateToken(user);
 
         var cookieOptions = new CookieOptions
@@ -73,7 +70,7 @@ public class AuthController : ControllerBase
             HttpOnly = true,
             Secure = false,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddHours(12)
+            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes)
         };
 
         Response.Cookies.Append("access_token", token, cookieOptions);
@@ -90,9 +87,6 @@ public class AuthController : ControllerBase
     public IActionResult Logout()
     {
         Response.Cookies.Delete("access_token");
-        return Ok(new
-        {
-            message = "Logged out successfully"
-        });
+        return Ok(new { message = "Logged out successfully" });
     }
 }

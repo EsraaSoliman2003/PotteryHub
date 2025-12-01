@@ -66,16 +66,6 @@ export default function Header() {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               ))}
-
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="text-amber-300 hover:text-amber-400 font-semibold text-sm transition-all duration-300 relative py-2"
-                >
-                  Admin
-                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-amber-400/70"></span>
-                </Link>
-              )}
             </nav>
 
             {/* --- Search Bar (Desktop) --- */}

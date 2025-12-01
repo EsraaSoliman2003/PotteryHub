@@ -15,27 +15,21 @@ const useAuthStore = create(
       error: null,
       setUser: (updatedUser) => set({ user: updatedUser }),
 
-      // تسجيل الدخول
       login: async (email, password) => {
         try {
           set({ loading: true, error: null });
 
           const res = await authApi.login({ email, password });
-          // الباك إند بيرجع { token, user: {id, name, email, role} }
-          const { token, user } = res.data;
 
-          // خزّن في zustand
+          const { user } = res.data;
+
           set({
             user,
-            token,
+            token: null,
             isAuthenticated: true,
             loading: false,
+            error: null,
           });
-
-          // لو حابة تحتفظي بالـ token كمان في localStorage (غير الـ persist)
-          if (typeof window !== "undefined") {
-            localStorage.setItem("token", token);
-          }
 
           return { success: true };
         } catch (err) {
@@ -43,12 +37,12 @@ const useAuthStore = create(
           set({
             error: typeof err === "string" ? err : "Login failed",
             loading: false,
+            isAuthenticated: false,
           });
           return { success: false, error: err };
         }
       },
 
-      // تسجيل حساب جديد
       register: async (name, email, password) => {
         try {
           set({ loading: true, error: null });
@@ -57,7 +51,6 @@ const useAuthStore = create(
 
           set({ loading: false });
 
-          // مش بنعمل login أوتوماتيك هنا؛ ممكن تعملي redirect لصفحة login
           return { success: true };
         } catch (err) {
           console.error("Register error:", err);
@@ -69,21 +62,23 @@ const useAuthStore = create(
         }
       },
 
-      // تسجيل الخروج
-      logout: () => {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("token");
+      logout: async () => {
+        try {
+          await authApi.logout();
+        } catch (err) {
+          console.error("Logout error:", err);
         }
 
         set({
           user: null,
           token: null,
           isAuthenticated: false,
+          error: null,
         });
       },
     }),
     {
-      name: "auth-store", // اسم المفتاح في localStorage
+      name: "auth-store",
       partialize: (state) => ({
         user: state.user,
         token: state.token,

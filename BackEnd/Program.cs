@@ -41,59 +41,66 @@ builder.Services
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-.AddJwtBearer(opt =>
-{
-    opt.TokenValidationParameters = new TokenValidationParameters
+    .AddJwtBearer(opt =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtConfig.Issuer,
-        ValidAudience = jwtConfig.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-
-    opt.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
+        opt.TokenValidationParameters = new TokenValidationParameters
         {
-            if (context.Request.Cookies.TryGetValue("access_token", out var token))
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtConfig.Issuer,
+            ValidAudience = jwtConfig.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+
+        opt.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
             {
-                context.Token = token;
+                var path = context.HttpContext.Request.Path;
+
+                if (path.StartsWithSegments("/api/auth"))
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (context.Request.Cookies.TryGetValue("access_token", out var token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            },
+
+            OnAuthenticationFailed = context =>
+            {
+                context.NoResult();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+
+                return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
+                    new { success = false, message = "Invalid or expired token" }));
+            },
+
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+
+                return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
+                    new { success = false, message = "Unauthorized access" }));
+            },
+
+            OnForbidden = context =>
+            {
+                context.Response.StatusCode = 403;
+                context.Response.ContentType = "application/json";
+
+                return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
+                    new { success = false, message = "You do not have permission to access this resource" }));
             }
-            return Task.CompletedTask;
-        },
-
-        OnAuthenticationFailed = context =>
-        {
-            context.NoResult();
-            context.Response.StatusCode = 401;
-            context.Response.ContentType = "application/json";
-
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
-                new { success = false, message = "Invalid or expired token" }));
-        },
-
-        OnChallenge = context =>
-        {
-            context.HandleResponse();
-            context.Response.StatusCode = 401;
-            context.Response.ContentType = "application/json";
-
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
-                new { success = false, message = "Unauthorized access" }));
-        },
-
-        OnForbidden = context =>
-        {
-            context.Response.StatusCode = 403;
-            context.Response.ContentType = "application/json";
-
-            return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(
-                new { success = false, message = "You do not have permission to access this resource" }));
-        }
-    };
-});
+        };
+    });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()

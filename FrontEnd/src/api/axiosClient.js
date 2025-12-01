@@ -6,23 +6,30 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
-// Attach token automatically
-axiosClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
-
-// Handle API errors
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (!error.response) {
+      return Promise.reject("Network error");
+    }
+
+    const status = error.response.status;
+    const url = error.config?.url || "";
+
+    if (
+      status === 401 &&
+      !url.includes("/auth/login") &&
+      !url.includes("/auth/register")
+    ) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("auth-store");
+        window.location.href = "/auth/login";
+      }
+    }
+
     const msg =
       error?.response?.data?.message ||
       error?.response?.data?.error ||
