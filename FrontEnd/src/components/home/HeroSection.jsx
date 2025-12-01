@@ -1,6 +1,11 @@
+"use client";
+
 import { SparklesIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter();
+
   return (
     <section
       className="relative bg-cover bg-center bg-no-repeat min-h-screen border-b overflow-hidden"
@@ -77,10 +82,29 @@ export default function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex gap-3 mt-6">
-            <button className="bg-white text-gray-900 px-6 py-3 rounded-full hover:bg-amber-50 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl border-2 border-white text-sm">
+            {/* Shop Collection */}
+            <button
+              onClick={() => router.push("/products")}
+              className="
+                bg-white text-gray-900 px-7 py-3 rounded-full
+                font-semibold text-sm shadow-lg border-2 border-white
+                hover:bg-amber-50 hover:shadow-xl active:scale-95
+                transition-all duration-300 cursor-pointer
+              "
+            >
               Shop Collection
             </button>
-            <button className="border-2 border-white/60 text-white px-6 py-3 rounded-full hover:bg-white/10 backdrop-blur-sm transition-all duration-300 font-semibold text-sm">
+
+            {/* Meet Artisans */}
+            <button
+              onClick={() => router.push("/about")}
+              className="
+                border-2 border-white/70 text-white px-7 py-3 rounded-full
+                font-semibold text-sm backdrop-blur-sm
+                hover:bg-white/10 hover:border-white active:scale-95
+                transition-all duration-300 cursor-pointer
+              "
+            >
               Meet Artisans
             </button>
           </div>

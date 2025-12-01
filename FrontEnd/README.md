@@ -75,6 +75,7 @@ src/
   store/
     useAuthStore.js
     useCartStore.js
+    useSnackbarStore.js
 
   api/
     axiosClient.js
@@ -90,6 +91,9 @@ src/
 
     about/
       page.jsx              # About page
+
+    admin/
+      page.jsx              # Admin page
 
     contact/
       page.jsx              # Contact page
@@ -118,22 +122,22 @@ src/
       MainLayout.jsx
 
     home/
+      BestSellers.jsx
       HeroSection.jsx
-      FeaturedProducts.jsx
       CategoriesSection.jsx
-      CTASection.jsx
 
     products/
-      ProductsList.jsx
+      ProductsAddModal.jsx
       ProductCard.jsx
+      ProductsEditModal.jsx
       ProductFilters.jsx
       ProductGrid.jsx
+      ProductsList.jsx
 
     product-details/
       ProductImagesGallery.jsx
       ProductInfo.jsx
       ProductActions.jsx
-      RelatedProducts.jsx
 
     cart/
       CartItem.jsx
@@ -141,9 +145,11 @@ src/
       CartList.jsx
 
     profile/
-      ProfileInfo.jsx
+      AccountSettings.jsx
+      ChangePasswordForm.jsx
+      EditProfileForm.jsx
       OrdersList.jsx
-      AddressBook.jsx
+      ProfileInfo.jsx
 
     auth/
       LoginForm.jsx
@@ -156,6 +162,7 @@ src/
       SectionTitle.jsx
       Loader.jsx
       EmptyState.jsx
+      Snackbar.jsx
 ```
 
 ---

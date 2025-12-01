@@ -1,21 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { HeartIcon, ShareIcon } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { ShareIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import useCartStore from "@/store/useCartStore";
 import useAuthStore from "@/store/useAuthStore";
+import useSnackbarStore from "@/store/useSnackbarStore";
 
 export default function ProductActions({ product }) {
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [buyingNow, setBuyingNow] = useState(false);
 
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
+  const { showSnackbar } = useSnackbarStore();
 
   const stock =
     typeof product.stock === "number"
@@ -49,10 +49,8 @@ export default function ProductActions({ product }) {
       setAddingToCart(true);
       await addItem(product.id, quantity);
 
-      alert("Item added to cart");
     } catch (err) {
       console.error("Add to cart error:", err);
-      alert(typeof err === "string" ? err : "Failed to add to cart");
     } finally {
       setAddingToCart(false);
     }
@@ -68,9 +66,23 @@ export default function ProductActions({ product }) {
       router.push("/cart");
     } catch (err) {
       console.error("Buy now error:", err);
-      alert(typeof err === "string" ? err : "Failed to start order");
     } finally {
       setBuyingNow(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showSnackbar("Product link copied to clipboard ✅", {
+        variant: "success",
+      });
+    } catch (err) {
+      console.error("Share error:", err);
+      showSnackbar("Failed to copy link", { variant: "error" });
     }
   };
 
@@ -138,18 +150,14 @@ export default function ProductActions({ product }) {
       {/* Secondary Actions */}
       <div className="flex gap-3">
         <button
-          onClick={() => setIsWishlisted(!isWishlisted)}
-          className="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
+          onClick={handleShare}
+          className="
+            flex-1 flex items-center justify-center gap-2 py-3 
+            border border-gray-300 rounded-xl text-gray-700 
+            hover:bg-gray-50 transition-colors
+            cursor-pointer
+          "
         >
-          {isWishlisted ? (
-            <HeartSolidIcon className="w-5 h-5 text-red-500" />
-          ) : (
-            <HeartIcon className="w-5 h-5" />
-          )}
-          <span className="font-medium">Wishlist</span>
-        </button>
-
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
           <ShareIcon className="w-5 h-5" />
           <span className="font-medium">Share</span>
         </button>

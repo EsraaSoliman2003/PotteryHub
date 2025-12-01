@@ -10,15 +10,15 @@ import productsApi from "@/api/productsApi";
 import ProductEditModal from "./ProductEditModal";
 
 export default function ProductCard({ product, onDeleted, onUpdated }) {
-  const [inCart, setInCart] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
 
   const router = useRouter();
-  const { user } = useAuthStore();
-const addItem = useCartStore((state) => state.addItem);
+
+  const { user, isAuthenticated } = useAuthStore();
+  const addItem = useCartStore((state) => state.addItem);
 
   const isAdmin = user?.role === "Admin";
 
@@ -43,22 +43,26 @@ const addItem = useCartStore((state) => state.addItem);
     router.push(`/products/${productId}`);
   };
 
-const handleAddToCart = async (e) => {
-  e.stopPropagation();
-  if (!productId || isOutOfStock || addingToCart) return;
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
 
-  try {
-    setAddingToCart(true);
-    await addItem(productId, 1);
-    setInCart(true);
-  } catch (err) {
-    console.error("Add to cart error:", err);
-    alert("Failed to add item.");
-  } finally {
-    setAddingToCart(false);
-  }
-};
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+      return;
+    }
 
+    if (!productId || isOutOfStock || addingToCart) return;
+
+    try {
+      setAddingToCart(true);
+      await addItem(productId, 1);
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      alert("Failed to add item.");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   const handleDelete = async (e) => {
     e.stopPropagation();
@@ -208,8 +212,6 @@ const handleAddToCart = async (e) => {
                   ${
                     isOutOfStock
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      : inCart
-                      ? "bg-amber-100 text-amber-700 border border-amber-200"
                       : "bg-amber-500 text-white hover:bg-amber-600"
                   }
                   ${addingToCart ? "opacity-70 cursor-wait" : ""}
@@ -219,9 +221,9 @@ const handleAddToCart = async (e) => {
                   ? "Out of Stock"
                   : addingToCart
                   ? "Adding..."
-                  : inCart
-                  ? "Added ✓"
-                  : "Add to Cart"}
+                  : isAuthenticated
+                  ? "Add to Cart"
+                  : "Login to add"}
               </button>
             )}
 
