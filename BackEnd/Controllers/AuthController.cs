@@ -20,13 +20,14 @@ public class AuthController : ControllerBase
         _jwt = jwt;
     }
 
+    // POST: api/auth/register
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
         if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-            return BadRequest(new ApiErrorResponse 
-            { 
-                Message = "Email already exists" 
+            return BadRequest(new ApiErrorResponse
+            {
+                Message = "Email already exists"
             });
 
 
@@ -48,28 +49,50 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Registered successfully" });
     }
 
+    // POST: api/auth/login
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
         if (user == null)
-            return Unauthorized(new ApiErrorResponse 
-            { 
-                Message = "Invalid credentials" 
+            return Unauthorized(new ApiErrorResponse
+            {
+                Message = "Invalid credentials"
             });
 
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            return Unauthorized(new ApiErrorResponse 
-            { 
-                Message = "Invalid credentials" 
+            return Unauthorized(new ApiErrorResponse
+            {
+                Message = "Invalid credentials"
             });
         var token = _jwt.GenerateToken(user);
 
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddHours(12)
+        };
+
+        Response.Cookies.Append("access_token", token, cookieOptions);
+
         return Ok(new
         {
-            token,
+            message = "Logged in successfully",
             user = new { user.Id, user.Name, user.Email, user.Role }
+        });
+    }
+
+    // POST: api/auth/logout
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("access_token");
+        return Ok(new
+        {
+            message = "Logged out successfully"
         });
     }
 }
