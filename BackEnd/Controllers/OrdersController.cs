@@ -38,6 +38,8 @@ public class OrdersController : ControllerBase
         return id;
     }
 
+    // =============== Create Order from Cart ===============
+
     [HttpPost]
     [Authorize(Roles = "User,Admin")]
     public async Task<IActionResult> CreateOrderFromCart()
@@ -64,9 +66,12 @@ public class OrdersController : ControllerBase
         foreach (var item in cart.Items)
         {
             if (item.Product.Stock < item.Quantity)
-                return BadRequest(new ApiErrorResponse { Message = $"Not enough stock for {item.Product.Title}" });
-
-            item.Product.Stock -= item.Quantity;
+            {
+                return BadRequest(new ApiErrorResponse
+                {
+                    Message = $"Not enough stock for {item.Product.Title}"
+                });
+            }
 
             var price = item.Product.Price;
             total += price * item.Quantity;
@@ -89,6 +94,8 @@ public class OrdersController : ControllerBase
         return Ok(order);
     }
 
+    // =============== Get My Orders ===============
+
     [HttpGet("my")]
     [Authorize(Roles = "User,Admin")]
     public async Task<IActionResult> GetMyOrders()
@@ -105,6 +112,8 @@ public class OrdersController : ControllerBase
         return Ok(orders);
     }
 
+    // =============== Get All (Admin) ===============
+
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
@@ -119,15 +128,80 @@ public class OrdersController : ControllerBase
         return Ok(orders);
     }
 
+    // =============== Admin: Update Status ===============
+
     [HttpPut("{id}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
     {
-        var order = await _context.Orders.FindAsync(id);
+        var order = await _context.Orders
+            .Include(o => o.Items)
+            .ThenInclude(oi => oi.Product)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
         if (order == null)
             return NotFound(new ApiErrorResponse { Message = "Order not found" });
 
-        order.Status = status;
+        var oldStatus = order.Status;
+        var newStatus = status;
+
+        if (string.Equals(oldStatus, "Pending", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var item in order.Items)
+            {
+                if (item.Product.Stock < item.Quantity)
+                {
+                    return BadRequest(new ApiErrorResponse
+                    {
+                        Message = $"Not enough stock for {item.Product.Title}"
+                    });
+                }
+            }
+
+            foreach (var item in order.Items)
+            {
+                item.Product.Stock -= item.Quantity;
+            }
+        }
+
+        order.Status = newStatus;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(order);
+    }
+
+    // =============== User/Admin: Cancel Pending Order ===============
+
+    [HttpPut("{id}/cancel")]
+    [Authorize(Roles = "User,Admin")]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        var userId = GetUserId();
+        var isAdmin = User.IsInRole("Admin");
+
+        var order = await _context.Orders
+            .Include(o => o.Items)
+            .ThenInclude(oi => oi.Product)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (order == null)
+            return NotFound(new ApiErrorResponse { Message = "Order not found" });
+
+        if (!isAdmin && order.UserId != userId)
+            return Forbid();
+
+        if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new ApiErrorResponse
+            {
+                Message = "Only pending orders can be cancelled."
+            });
+        }
+
+        order.Status = "Cancelled";
+
         await _context.SaveChangesAsync();
 
         return Ok(order);

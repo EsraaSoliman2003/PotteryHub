@@ -10,7 +10,6 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// 🧠 Zustand stores
 import useAuthStore from "@/store/useAuthStore";
 import useCartStore from "@/store/useCartStore";
 
@@ -26,19 +25,16 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const router = useRouter();
 
-  // 🔐 حالة المستخدم من zustand
   const { user, isAuthenticated, logout } = useAuthStore();
+  const isAdmin = isAuthenticated && user?.role === "Admin";
 
-  // 🛒 حالة السلة من zustand
   const cart = useCartStore((state) => state.cart);
 
-  // لو cart جاي من الـ API بالشكل:
-  // { id, userId, items: [ { id, productId, quantity, product: {...} } ] }
   const cartCount =
     cart?.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
 
   const handleLogout = () => {
-    logout();            // يمسح المستخدم + التوكن من الـ store
+    logout();
     router.push("/auth/login");
   };
 
@@ -70,6 +66,16 @@ export default function Header() {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-400 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               ))}
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="text-amber-300 hover:text-amber-400 font-semibold text-sm transition-all duration-300 relative py-2"
+                >
+                  Admin
+                  <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-amber-400/70"></span>
+                </Link>
+              )}
             </nav>
 
             {/* --- Search Bar (Desktop) --- */}
@@ -116,6 +122,16 @@ export default function Header() {
                       {user?.name || "Account"}
                     </span>
                   </Link>
+
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="px-3 py-1.5 text-sm bg-amber-500 text-slate-900 rounded-lg hover:bg-amber-400 transition-colors font-semibold shadow-lg hover:shadow-amber-500/25"
+                    >
+                      Admin
+                    </Link>
+                  )}
+
                   <button
                     onClick={handleLogout}
                     className="px-3 py-1.5 text-sm text-slate-300 hover:text-red-400 hover:bg-slate-800/60 rounded-lg transition-colors font-medium"
@@ -214,6 +230,16 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block text-lg font-semibold text-amber-300 hover:text-amber-400 py-3 px-4 rounded-xl hover:bg-slate-800/50 transition-all duration-300 border border-amber-500/40"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
             </nav>
 
             {/* Auth Buttons (Mobile) */}

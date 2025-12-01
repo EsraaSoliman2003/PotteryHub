@@ -1,42 +1,89 @@
+// src/components/profile/OrdersList.jsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TruckIcon,
   CheckCircleIcon,
   ClockIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
+import ordersApi from "@/api/ordersApi";
 
 const getStatusIcon = (status) => {
   switch (status) {
-    case "Delivered":
-      return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
-    case "Processing":
+    case "Pending":      // جاري المراجعة
       return <ClockIcon className="w-5 h-5 text-amber-500" />;
-    default:
+    case "Approved":     // تمت الموافقة / قيد التنفيذ
       return <TruckIcon className="w-5 h-5 text-blue-500" />;
+    case "Completed":    // تم التسليم
+      return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+    case "Cancelled":    // تم الإلغاء
+      return <XCircleIcon className="w-5 h-5 text-red-500" />;
+    default:
+      return <TruckIcon className="w-5 h-5 text-slate-400" />;
   }
 };
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "Delivered":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "Processing":
+    case "Pending":
       return "bg-amber-100 text-amber-700 border-amber-200";
-    default:
+    case "Approved":
       return "bg-blue-100 text-blue-700 border-blue-200";
+    case "Completed":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "Cancelled":
+      return "bg-red-100 text-red-700 border-red-200";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-200";
   }
 };
 
 export default function OrdersList({ orders }) {
-  const [expandedOrderId, setExpandedOrderId] = useState(null); // ⬅️ مين اللي متفتح دلوقتي
+  // نشتغل بنسخة محلية من الأوردرات عشان نعدّلها بعد الإلغاء
+  const [localOrders, setLocalOrders] = useState(orders || []);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [cancelLoadingId, setCancelLoadingId] = useState(null);
+
+  // لو الـ props اتغيّرت (مثلاً بعد refetch) نحدّث النسخة المحلية
+  useEffect(() => {
+    setLocalOrders(orders || []);
+  }, [orders]);
 
   const toggleDetails = (orderId) => {
     setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
   };
 
-  if (!orders || orders.length === 0) {
+  const handleCancelOrder = async (orderId) => {
+    const confirmCancel = window.confirm(
+      "Are you sure you want to cancel this order?"
+    );
+    if (!confirmCancel) return;
+
+    try {
+      setCancelLoadingId(orderId);
+      await ordersApi.cancel(orderId);
+
+      // نحدّث حالة الأوردر في الواجهة
+      setLocalOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: "Cancelled" } : o
+        )
+      );
+    } catch (err) {
+      console.error("Cancel order error:", err);
+      alert(
+        typeof err === "string"
+          ? err
+          : "Failed to cancel order, please try again."
+      );
+    } finally {
+      setCancelLoadingId(null);
+    }
+  };
+
+  if (!localOrders || localOrders.length === 0) {
     return (
       <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-amber-200/30 p-8 text-center">
         <div className="text-6xl mb-6">📦</div>
@@ -60,12 +107,14 @@ export default function OrdersList({ orders }) {
         <h2 className="text-2xl font-light text-slate-800 font-serif">
           Order History
         </h2>
-        <span className="text-slate-600 text-sm">{orders.length} orders</span>
+        <span className="text-slate-600 text-sm">
+          {localOrders.length} orders
+        </span>
       </div>
 
       {/* Orders List */}
       <div className="space-y-4">
-        {orders.map((order) => (
+        {localOrders.map((order) => (
           <div
             key={order.id}
             className="p-4 bg-white rounded-2xl border border-amber-200/30 hover:border-amber-300/50 transition-all duration-300 group"
@@ -111,16 +160,32 @@ export default function OrdersList({ orders }) {
               </div>
 
               <div className="flex gap-2">
+                {/* View / Hide details */}
                 <button
-                  onClick={() => toggleDetails(order.id)} // ⬅️ هنا السحر
+                  onClick={() => toggleDetails(order.id)}
                   className="px-3 py-1.5 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
                 >
-                  {expandedOrderId === order.id ? "Hide Details" : "View Details"}
+                  {expandedOrderId === order.id
+                    ? "Hide Details"
+                    : "View Details"}
                 </button>
+
+                {/* Cancel button: يظهر فقط لو الأوردر Pending */}
+                {order.status === "Pending" && (
+                  <button
+                    onClick={() => handleCancelOrder(order.id)}
+                    disabled={cancelLoadingId === order.id}
+                    className="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium disabled:opacity-60"
+                  >
+                    {cancelLoadingId === order.id
+                      ? "Cancelling..."
+                      : "Cancel Order"}
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* ✅ تفاصيل الأوردر تحت الكارت */}
+            {/* تفاصيل الأوردر تحت الكارت */}
             {expandedOrderId === order.id && (
               <div className="mt-4 pt-3 border-t border-dashed border-amber-200/60">
                 {order.items && order.items.length > 0 ? (
